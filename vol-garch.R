@@ -107,6 +107,7 @@ ep <- xts::endpoints(all_returns, on = "years")
 
 ## Loop 
 y <- 1
+output <- list()
 for (z in 0:length(ep)) {
   
   first_obs <- ep[1 + z] + 1
@@ -134,8 +135,8 @@ for (z in 0:length(ep)) {
   
   if (sum(arch_tests_pvalues >= 0.05) != 0) {
     #stop( # Edit, voltar com o stop
-    print("Hipótese nula de que não há efeito ARCH não foi rejeitada,
-          não há heteroscedasticidade a ser modelada.") # EDIT Ta não rejeitando só pro primeiro e quinto lag, o que significa?
+    print("Hipotese nula de que nao ha efeito ARCH nao foi rejeitada,
+           nao há heteroscedasticidade a ser modelada.") # EDIT Ta não rejeitando só pro primeiro e quinto lag, o que significa?
   }
   
   
@@ -183,7 +184,6 @@ for (z in 0:length(ep)) {
   
   
   # Filtra pelos criterios de informação
-  
   bics <- sapply(fits, getBIC)
   
   bic_sup <- mean(bics) + 2 * sd(bics)
@@ -195,7 +195,6 @@ for (z in 0:length(ep)) {
   
   
   # Filtra pelo MSE na analise pseudo out of sample
-  
   garch_specs <- garch_specs[names(fits)] # Seleciona somente os que passaram no teste anterior
   
   out_smpl_size <- length(xts::last(returns, '1 year'))
@@ -302,14 +301,11 @@ for (z in 0:length(ep)) {
   
   
   ## Output do codigo
-  if(!exists("output")){
-    output <- list()
-    output[[y]] <- out
-    
-  } else {
-    output[[y]] <- out
-    y <- y + 1
-  }
+  output[[y]] <- out
+  y <- y + 1
+  
   
 }
 
+# Implementar solucoes de timeout e try
+# Uma simplificação é colocar os filtros do model selection em uma função que recebe os fits e retorna os chosen models (pode retornar só antes da analise pseudo out of sample ou faz a analise dentro criando o cluster fora )
